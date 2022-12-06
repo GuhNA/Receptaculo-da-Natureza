@@ -5,8 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - enemy
-  - spots
   - fallCheck
+  - spots
+  - chao
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - UI
   - chao
   - enemy
-  - 
+  - player
   - 
   - 
   - 
