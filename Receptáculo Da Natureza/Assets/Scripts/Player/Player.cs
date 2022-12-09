@@ -27,8 +27,8 @@ public class Player : MonoBehaviour
     Color iniColor;
 
     SpriteRenderer sprite;
-    DownfallDamage df;
     Rigidbody2D rig;
+
 
     #region Encapsulamento
     public int life
@@ -87,7 +87,6 @@ public class Player : MonoBehaviour
     #endregion
     private void Awake()
     {
-        df = FindObjectOfType<DownfallDamage>();
         rig = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         LifeMax = life = 100;
@@ -111,7 +110,7 @@ public class Player : MonoBehaviour
             lookRight = false;
         }
 
-        //Piscando
+        //Blinking
         if (damage)
         {
             cont -= Time.deltaTime;
@@ -121,16 +120,16 @@ public class Player : MonoBehaviour
                 times++;
             }
 
-            if(times % 2 != 0)
+            if (times % 2 != 0)
             {
                 sprite.color = iniColor;
             }
-            else if(times % 2 == 0)
+            else if (times % 2 == 0)
             {
                 sprite.color = new Color(255f, 255f, 255f, 0.1f);
             }
 
-            if(times == 5)
+            if (times == 5)
             {
                 cont = contMax;
                 times = 0;
@@ -154,11 +153,11 @@ public class Player : MonoBehaviour
 
         if (direction < 0)
         {
-            GetComponent<SpriteRenderer>().flipX = true;
+            transform.eulerAngles = new Vector2(0, 180);
         }
         else if (direction > 0)
         {
-            GetComponent<SpriteRenderer>().flipX = false;
+            transform.eulerAngles = new Vector2(0, 0);
         }
     }
 
@@ -180,7 +179,10 @@ public class Player : MonoBehaviour
 
     public void ChangeLife(int modifier)
     {
-        life = Mathf.Clamp(life + modifier, 0, 100);
+        if(modifier > 0)
+            life = Mathf.Clamp(life + modifier, 0, 100);
+        else if(!damage)
+            life = Mathf.Clamp(life + modifier, 0, 100);
 
         if (modifier < 0)
         {

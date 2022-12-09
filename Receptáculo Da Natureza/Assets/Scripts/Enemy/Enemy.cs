@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -8,12 +9,18 @@ public class Enemy : MonoBehaviour
     [Header("Parameters")]
     [SerializeField] int life;
     [SerializeField] float distance;
-    int direction = 1;
 
     [Header("References")]
     [SerializeField] Transform bullet;
     [SerializeField] Transform bulletposition;
     [SerializeField] Transform vision;
+    Animator anim;
+    EnemyAnim enemyAnim;
+    private void Awake()
+    {
+        anim = GetComponent<Animator>();
+        enemyAnim = GetComponent<EnemyAnim>();
+    }
 
     private void Update()
     {
@@ -22,7 +29,6 @@ public class Enemy : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
     private void FixedUpdate()
     {
         enemyVision();
@@ -31,9 +37,11 @@ public class Enemy : MonoBehaviour
     public void changeLife(int num)
     {
         life += num;
+        if (num < 0)
+            enemyAnim.damage = true;
     }
 
-
+    //Used by animation atk
     void fire()
     {
         Instantiate(bullet, bulletposition.position, transform.rotation);
@@ -41,11 +49,34 @@ public class Enemy : MonoBehaviour
 
     void enemyVision()
     {
-        RaycastHit2D hit = Physics2D.Raycast(vision.position, transform.TransformDirection(Vector2.right * direction), distance, 8);
+        RaycastHit2D hit = Physics2D.Raycast(vision.position, transform.TransformDirection(Vector2.right), distance, -1, 0);
+
+        //For some reason we can't use directly hit.collider...
         if (hit)
         {
-            Debug.Log("Te achei");
+            if(hit.collider.CompareTag("Player"))
+            {
+                if(enemyAnim.currentVel > 0)
+                    enemyAnim.currentVel = 0;
+                if(!enemyAnim.attacking)
+                    enemyAnim.attacking = true;
+                anim.SetInteger("action", 2);
+
+            }
+            //if hit with something else
+            else
+            {
+                if (enemyAnim.attacking)
+                    enemyAnim.attacking = false;
+            }
         }
+        //if don't hit nothing
+        else
+        {
+            if (enemyAnim.attacking)
+                enemyAnim.attacking = false;
+        }
+
         Debug.DrawRay(vision.position, vision.TransformDirection(Vector2.right * distance), Color.red);
     }
 
